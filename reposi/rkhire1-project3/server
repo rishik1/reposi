@@ -1,0 +1,4 @@
+#!/bin/bash
+
+
+ant FileStoreServer -Darg0=$1

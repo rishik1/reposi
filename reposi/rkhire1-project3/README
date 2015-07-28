@@ -1,0 +1,11 @@
+Name:Rishikesh khire
+rkhire1@binghamton.edu
+Tool:ANT 
+
+RUN :::::::::::::::::
+
+./server 9090
+chmod +x init
+./init nodes.txt
+./client 128.226.180.172 9094 --operation read --filename aa.txt --user rishi
+
