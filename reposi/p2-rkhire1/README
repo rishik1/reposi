@@ -1,0 +1,8 @@
+Name:Rishikesh Khire
+programming assignment 2
+
+how to compile:
+gcc fscrypt.cc main.cc -lcrypto
+
+How to run
+./a.out

@@ -1,0 +1,123 @@
+CS542 - Design Patterns
+Spring 2014
+PROJECT - 2 
+
+Due Date: Thursday, March 13, 2014
+Submission Date: Thursday, March 14, 2014
+Grace Period Used This Project: 1 Days
+Grace Period Remaining: 0 Days
+Author(s): Rishikesh Khire
+e-mail(s): rkhire1@binghamton.edu
+
+
+PURPOSE:
+
+The purpose of this project is to design and develop Client-Server chat using multi-threading. 
+It can support up-to 5 clients to chat with server.
+
+PERCENT COMPLETE:
+
+I believe that I have completed 100% of this project and tried to use Design Patterns and Principles whenever applicable.
+
+PARTS THAT ARE NOT COMPLETE:
+
+N/A
+
+BUGS:
+
+N/A
+
+FILES:
+
+Project includes total 5 packages and few supporting files. Here are the details of each.
+
+
+Package: chat.clientUtility
+	Files:	ClientClass.java, class to handle client
+			
+Package: chat.client
+	Files:	ClientDriver.java, the main class of client program to start client 
+
+Package: chat.server
+	Files: 	ServerDriver.java : class to start server  
+	
+Package: chat.serverUtility
+	Files:	ClientHandler.java  : handler class for server
+			
+			
+Package: chat.util
+	Files:	MyThread.java : class to handle threads status and save unique thread and status per thread
+			Logger.java	: class to dump backup of messages
+			Threadpool.java	: class to create pool of threads and provide threads when needed
+			
+build.xml    the file defines attributes for ANT
+README.txt   the present text file
+
+SAMPLE OUTPUT: 
+remote09:~/assign2> ./run.sh client localhost
+/usr/bin/java -cp ./build/classes:lib/*/*.jar: chat.client.ClientDriver localhost
+:::::::::: MENU :::::::::
+1. RECIEVE FROM SERVER
+2. SEND TO SERVEER
+3. GIVE YOUR NAME
+4. Exit from client 
+Enter choice 
+2
+sadsaasdasd
+MYSELF >>sadsaasdasd
+:::::::::: MENU :::::::::
+1. RECIEVE FROM SERVER
+2. SEND TO SERVEER
+3. GIVE YOUR NAME
+4. Exit from client 
+Enter choice 
+3
+chai
+Namechai
+:::::::::: MENU :::::::::
+1. RECIEVE FROM SERVER
+2. SEND TO SERVEER
+3. GIVE YOUR NAME
+4. Exit from client 
+Enter choice 
+4
+client Closing
+
+remote09:~/assign2> ./run.sh client localhost 6767
+/usr/bin/java -cp ./build/classes:lib/*/*.jar: chat.client.ClientDriver localhost 6767
+:::::::::: MENU :::::::::
+1. RECIEVE FROM SERVER
+2. SEND TO SERVEER
+3. GIVE YOUR NAME
+4. Exit from client 
+Enter choice 
+
+
+TO COMPILE:
+1. Extract the file.
+2. Then Execute:   ant compile
+
+TO RUN:
+
+1. Execute Server: 
+			chmod +x run.sh
+			./run.sh server <port_number>
+	
+2. Execute Client:    ./run.sh client <host_name>  <port_number> 
+	
+EXTRA CREDIT:
+
+1. Singleton Pattern implementation for ThreadPool
+3. clients uniqueness maintained .
+3. Real time update of client name at server.
+
+BIBLIOGRAPHY:
+
+* http://docs.oracle.com/javase/tutorial/networking/sockets/clientServer.html
+* http://docs.oracle.com/javase/7/docs/api/java/util/Hashtable.html
+* http://www.tutorialspoint.com/java/java_hashtable_class.htm
+* http://docs.oracle.com/javase/7/docs/api/java/net/Socket.html
+*http://docs.oracle.com/javase/tutorial/essential/concurrency/pools.html
+
+ACKNOWLEDGEMENT:
+Professor Madhusudhan Govindaraju

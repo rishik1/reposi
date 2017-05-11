@@ -1,0 +1,69 @@
+
+<project name="taskmanager" default="compile" basedir=".">
+
+  <property name="build.compiler" value="modern"/>
+  <property name="src" value="src"/>
+  <property name="BUILD" value="build"/>
+  <property name="classes" value="${BUILD}/classes"/>
+  <property name="tarballFileName" value="taskmanager.tar.gz"/>
+
+  <target name="compile"
+          depends="taskmanager"/>
+
+  <target name="clean">
+       <delete dir="${BUILD}"/>
+  </target>
+
+
+
+
+  <!-- Prepare target directories -->
+  <target name="prepare">
+        <mkdir dir="${BUILD}"/>
+        <mkdir dir="${classes}"/>
+  </target>
+
+
+  <!-- ** means all subdirectories as well -->
+  <!-- * means all files in the current directory -->
+  <!-- for just java files use *.java -->
+
+  <target name="taskmanager" depends="prepare">
+    <javac srcdir="${src}"
+           includes="taskmanager/**"
+           excludes="**/package.html"
+           destdir="${classes}"
+           classpath="${classes}"
+           debug="on"
+           optimize="on"
+           deprecation="off"/>
+  </target>
+
+ <target name="jar">
+        <mkdir dir="${BUILD}/jar"/>
+        <jar destfile="${BUILD}/jar/taskmanager.jar" basedir="${BUILD}/classes">
+            <manifest>
+                <attribute name="Main-Class" value="taskmanager.driver.Driver"/>
+            </manifest>
+        </jar>
+    </target>
+
+	 
+<target name="tar">
+  <tar destfile="./${tarballFileName}"
+       basedir="." compression="gzip"
+       includes="${src}/**, build.xml, README"/>
+</target>
+
+
+<target name="run" depends="jar">
+        <java jar="${BUILD}/jar/taskmanager.jar"  fork="true">
+	  	<arg value="${arg0}"/>
+        	<arg value="${arg1}"/>
+	 </java>
+	
+    </target>
+
+
+
+</project>

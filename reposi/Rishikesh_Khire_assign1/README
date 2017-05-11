@@ -1,0 +1,144 @@
+
+PURPOSE:
+
+This project purpose is to create a storage for the records read from the input file. then this storage is used to search the values from the second file to and if these values of the file exists in the data storage will be saved into another Storage.
+
+PERCENT COMPLETE:
+I believe I have completed 99% of this project
+
+PARTS THAT ARE NOT COMPLETE:
+Not implemented validations explicitly .
+
+BUGS:
+None
+
+FILES:
+Driver.java :: package csRegs.driver
+This file has the main fucntion of the application
+debug level is set here.
+
+
+Worker.java :package csRegs.dataStore
+This interface provide the abstraction to the Pouplate_Worker and Search_Worker
+
+
+Populate_Worker ::package csRegs.dataStore
+ This file Populate worker implements interface Worker
+ It spawns threads to read from the INput File 
+ Parameterized constructor takes no of threads and Input File
+ Threads are created and each calls run method FileReaders object
+ After completion of threads they are joined 
+ File reader and BufferedReader are closed
+
+FileReader.java ::package csRegs.dataStore
+FileReaders implements Runnable 
+It provide run() function for number of threads
+Main functionality is to readfile()-->input file
+ 
+
+DataStore.java ::package csRegs.dataStore
+Interface to provide abstraction to class Registration Store.
+
+RegistrationStore.java ::package csRegs.dataStore
+Registration Store is implementation of Interface DataStore
+Provide a Single Instance HashMap data Structure to store entries generated from populate_Workers input File
+It can add record to Data Structure
+
+
+Seacher_Worker ::package csRegs.dataStore
+Search_Worker provides implementation of Worker Interface
+Function of this class is it search open the file and create threads to readFile and search file through FileReader
+
+FileReader2.java ::package csRegs.dataStore
+FileReader2 class is used to read Search File 
+It entertains the threads by providing run method which in turn read search_file simultaneouly.
+
+Searcher.java ::package csRegs.dataStore
+Interface implement the Search_Worker
+Search function abstraction is provide which is implemented by Search_Worker
+
+
+Result_Searcher.java ::package csRegs.dataStore
+Result_Searcher implements Searcher 
+provide search functionality from the HashMap data structure and generate result
+
+StudentInfo.java ::
+StudentInfo class provide details of student read from input file and this class object are store in Registration store.
+provides methods getFisrtname,getLastname, getinstructor,getCourseno, toString.
+
+resultInterface.java ::
+provides abstraction to the Results class methods
+storeResult
+displayData
+
+Result.java::
+Result class provides implementation of the interface resultInterface
+Creates DataStructure to store Results objects in arrayList.
+
+Logger.java ::
+Logger class provide the different case values to be printed for different DEBUG_VALUE
+Has dump method which is used in other classes to print debug statements as per given specifications.
+
+ 
+SAMPLE OUTPUT:
+remote03:~/DP> ant -Darg0=test.txt -Darg1=4 -Darg2=searchtest.txt -Darg3=4 -Darg4=2 run
+Buildfile: /import/linux/home/rkhire1/DP/build.xml
+
+jar:
+
+run:
+     [java] Found Record Added
+     [java] Found Record Added
+     [java] Found Record Added
+     [java] Found Record Added
+     [java] Found Record Added
+
+BUILD SUCCESSFUL
+Total time: 1 second
+remote03:~/DP> ant -Darg0=test.txt -Darg1=4 -Darg2=searchtest.txt -Darg3=4 -Darg4=3 run
+Buildfile: /import/linux/home/rkhire1/DP/build.xml
+
+jar:
+
+run:
+     [java] IN populate Worker thread :run method()
+     [java] IN populate Worker thread :run method()
+     [java] IN populate Worker thread :run method()
+     [java] IN populate Worker thread :run method()
+     [java] IN Search Thread of FileReader2
+     [java] IN Search Thread of FileReader2
+     [java] IN Search Thread of FileReader2
+     [java] IN Search Thread of FileReader2
+
+BUILD SUCCESSFUL
+Total time: 1 second
+
+
+
+
+TO COMPILE:
+
+[
+ Please extract the file and do-> ant compile
+]
+
+TO RUN:
+
+[
+  Please go into the Rishikesh_Khire_assign1 directory
+  run as: ant -Darg0=<INPUTFILE> -Darg1=<THREADS_MM> -Darg2=<SEARCHFILE> -Darg3=<THREAD_NN> -Darg4=<DEBUGVALUE>
+ for example: ant -Darg0=test.txt -Darg1=4 -Darg2=searchtest.txt -Darg3=4 -Darg4=3 run
+   
+]
+
+EXTRA CREDIT:
+
+NO
+
+BIBLIOGRAPHY:
+
+http://docs.oracle.com/javase/tutorial/
+
+
+ACKNOWLEDGEMENT:
+

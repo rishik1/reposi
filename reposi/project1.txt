@@ -1,0 +1,275 @@
+SQL> start q1.sql
+SQL> select co.dept_code||co.course# as course_id,co.title from courses co,classes cl where
+  2  	co.dept_code =cl.dept_code and co.course#=cl.course# and semester ='Spring' and year='2014'
+  3  	group by (co.dept_code||co.course# ,co.title);
+
+COURSE_ID                                    TITLE                              
+-------------------------------------------- --------------------               
+CS432                                        database systems                   
+CS532                                        database systems                   
+CS240                                        data structure                     
+Math221                                      calculus I                         
+
+SQL> 
+SQL> start q2.sql
+SQL>  select firstname from students where sid in (
+  2    2  select e.sid from enrollments e ,classes cl where e.classid =cl.classid and cl.dept_code ='CS'
+  3    3  intersect
+  4    4  select e.sid from enrollments e ,classes cl where e.classid =cl.classid and cl.dept_code ='Math');
+  2  select e.sid from enrollments e ,classes cl where e.classid =cl.classid and cl.dept_code ='CS'
+     *
+ERROR at line 2:
+ORA-00907: missing right parenthesis 
+
+
+SQL> start q2.sql
+SQL>  select firstname from students where sid in (
+  2    select e.sid from enrollments e ,classes cl where e.classid =cl.classid and cl.dept_code ='CS'
+  3    intersect
+  4    select e.sid from enrollments e ,classes cl where e.classid =cl.classid and cl.dept_code ='Math');
+
+FIRSTNAME                                                                       
+---------------                                                                 
+Anne                                                                            
+
+SQL> start q3.sql
+SQL> select dept_code,course# from courses
+  2  	minus
+  3  	select dept_code,course# from classes where year='2013'
+  4  ;
+
+DEPT    COURSE#                                                                 
+---- ----------                                                                 
+BIOL        425                                                                 
+CS          240                                                                 
+CS          532                                                                 
+CS          552                                                                 
+Math        221                                                                 
+
+SQL> start q4.sql
+SQL> select sid,firstname,gpa from students where
+  2  	 status<>'graduate' and sid in(
+  3  	 select sid from enrollments where lgrade ='A');
+
+SID  FIRSTNAME              GPA                                                 
+---- --------------- ----------                                                 
+B001 Anne                  3.17                                                 
+B003 Tracy                    4                                                 
+B007 Becky                    4                                                 
+
+SQL> start q5.sql
+SQL>  select firstname from( select sid,firstname from students
+  2  	minus
+  3  	select sid,firstname from students where sid in(
+  4  	select sid from enrollments where lgrade='A'));
+
+FIRSTNAME                                                                       
+---------------                                                                 
+Terry                                                                           
+Barbara                                                                         
+Jack                                                                            
+Tom                                                                             
+
+SQL> start q6.sql
+SQL> select sid,firstname,gpa from students where sid in (select sid from enrollments where lgrade = 'A') and status <> 'graduate';
+
+SID  FIRSTNAME              GPA                                                 
+---- --------------- ----------                                                 
+B001 Anne                  3.17                                                 
+B003 Tracy                    4                                                 
+B007 Becky                    4                                                 
+
+SQL> start q5.sql
+SQL> select firstname from students where sid not in (select sid from enrollments where lgrade = 'A') group by firstname;
+
+FIRSTNAME                                                                       
+---------------                                                                 
+Tom                                                                             
+Terry                                                                           
+Jack                                                                            
+Barbara                                                                         
+
+SQL> start q6.sql
+SQL> select sid,firstname from( select sid,firstname from students
+  2    minus
+  3    select sid,firstname from students where sid in(
+  4    select sid from enrollments where lgrade='A'));
+
+SID  FIRSTNAME                                                                  
+---- ---------------                                                            
+B002 Terry                                                                      
+B004 Barbara                                                                    
+B005 Jack                                                                       
+B008 Tom                                                                        
+
+SQL> start q7.sql
+SQL> select dept_code,course# from(select count(*) as cnt ,dept_code,course# from classes group by (dept_code,course#)) p
+  2  	where p.cnt =(select max(cnt) from(select count(*) as cnt ,dept_code,course# from classes group by (dept_code,course#)));
+
+DEPT    COURSE#                                                                 
+---- ----------                                                                 
+CS          432                                                                 
+Math        314                                                                 
+
+SQL> 
+SQL> starq8.sql
+SP2-0042: unknown command "starq8.sql" - rest of line ignored.
+SQL> start q8.sql
+SQL> select classid,dept_code,course#,(limit - class_size) as seats_available from classes
+  2  	 where year ='2014' and semester ='Spring' and class_size<limit;
+
+CLASS DEPT    COURSE# SEATS_AVAILABLE                                           
+----- ---- ---------- ---------------                                           
+c0001 CS          432               1                                           
+c0005 CS          240               1                                           
+c0006 CS          532               1                                           
+
+SQL> start q9.sql
+SQL> select * from students where sid in(
+  2  	select sid from (select sid,count(sid) from enrollments group by sid having count(sid)>4));
+
+SID  FIRSTNAME       LASTNAME        STATUS            GPA EMAIL                
+---- --------------- --------------- ---------- ---------- -------------------- 
+B001 Anne            Broder          junior           3.17 broder@bu.edu        
+
+SQL> start q10.sql
+SQL>  select * from classes where semester ='Spring' and year ='2014' and dept_code='CS' and classid in(
+  2    select classid from (select classid,count(classid) from enrollments group by classid having count(classid)<3));
+
+CLASS DEPT    COURSE#      SECT#       YEAR SEMEST      LIMIT CLASS_SIZE        
+----- ---- ---------- ---------- ---------- ------ ---------- ----------        
+c0001 CS          432          1       2014 Spring         35         34        
+
+SQL> start q11.sql
+SQL> select sid,firstname from students s where not exists(
+  2  	select * from courses co where course#>399 and course#<500 and dept_code='CS' and not exists(
+  3  	select * from classes cl,enrollments e where s.sid =e.sid and co.course#=cl.course# and co.dept_code=cl.dept_code and cl.classid =e.classid));
+
+SID  FIRSTNAME                                                                  
+---- ---------------                                                            
+B001 Anne                                                                       
+B003 Tracy                                                                      
+B004 Barbara                                                                    
+
+SQL> start q12.sql
+SQL> select title from courses where (dept_code||course#) in(
+  2  	 select (dept_code||course#) from classes where classid in(select classid from enrollments where sid='B001')
+  3  	 minus
+  4  	 select (dept_code||course#) from classes where classid in(select classid from enrollments where sid ='B002'))
+  5  	 group by title;
+
+TITLE                                                                           
+--------------------                                                            
+data structure                                                                  
+database systems                                                                
+
+SQL> 
+SQL> start q13.sql
+SQL> select firstname from students where sid in(
+  2  	 select sid from enrollments where classid in(
+  3  	 select classid from classes where (dept_code||course#) in(
+  4  	 select (dept_code||course#) from classes where classid in(select classid from enrollments where sid ='B005') group by (dept_code||course#))))
+  5  	 group by firstname;
+
+FIRSTNAME                                                                       
+---------------                                                                 
+Anne                                                                            
+Terry                                                                           
+Jack                                                                            
+
+SQL> 
+SQL> start q14.sql
+SQL> select dept_code,course#,semester,year from
+  2  	 (select dept_code,course#,semester,year,count(classid) as cnt from classes group by(dept_code,course#,semester,year)) p
+  3  	 where p.cnt >=2;
+
+DEPT    COURSE# SEMEST       YEAR                                               
+---- ---------- ------ ----------                                               
+Math        314 Fall         2013                                               
+
+SQL> start q15.sql
+SQL>  select s.sid, firstname from students s, enrollments e where s.sid = e.sid and lgrade =(
+  2  	select min(e1.lgrade) from enrollments e1, grades g where e1.lgrade = g.lgrade and e1.classid = e.classid group by classid) group by s.sid, firstname;
+
+SID  FIRSTNAME                                                                  
+---- ---------------                                                            
+B001 Anne                                                                       
+B002 Terry                                                                      
+B004 Barbara                                                                    
+B006 Terry                                                                      
+B007 Becky                                                                      
+B003 Tracy                                                                      
+
+6 rows selected.
+
+SQL> start q16.sql
+SQL> select co.dept_code,co.course#,co.title,nvl(e.lgrade,'to be assigned') as Grade from classes cl,courses co,enrollments e where co.dept_code=cl.dept_code
+  2  	and co.course#=cl.course# and e.classid = cl.classid and e.sid='B003';
+
+DEPT    COURSE# TITLE                GRADE                                      
+---- ---------- -------------------- --------------                             
+CS          432 database systems     A                                          
+CS          240 data structure       to be assigned                             
+
+SQL> start q17.sql
+SQL> select co.dept_code,co.course#,co.title from courses co,
+  2  	 (select cl.dept_code,cl.course# from students s, enrollments e, classes cl where
+  3  	 s.sid = e.sid and s.gpa>3.25 and cl.classid = e.classid ) p
+  4  	 where p.dept_code=co.dept_code and co.title like '%systems%' and co.course#=p.course# group by (co.dept_code,co.course#,co.title);
+
+DEPT    COURSE# TITLE                                                           
+---- ---------- --------------------                                            
+CS          432 database systems                                                
+CS          532 database systems                                                
+
+SQL> 
+SQL> start q18.sql
+SQL>  select sid,firstname, 0 as totalcredits from students where sid not in (select sid from enrollments group by sid)
+  2  	 union
+  3  	 select s.sid,s.firstname,sum(cd.credits) from students s,enrollments e,course_credit cd ,classes cl where s.sid = e.sid and e.classid =cl.classid
+  4  	 and cl.course#=cd.course# and e.lgrade is not NULL group by (s.sid,s.firstname) order by totalcredits DESC;
+
+SID  FIRSTNAME       TOTALCREDITS                                               
+---- --------------- ------------                                               
+B001 Anne                      23                                               
+B004 Barbara                    8                                               
+B002 Terry                      4                                               
+B003 Tracy                      4                                               
+B007 Becky                      4                                               
+B005 Jack                       3                                               
+B006 Terry                      3                                               
+B008 Tom                        0                                               
+
+8 rows selected.
+
+SQL> start q19.sql
+SQL> select avg(total_credits) as avg_total_credits from (
+  2  	 select sum(cd.credits) total_credits from students s,classes cl,enrollments e,course_credit cd where s.sid =e.sid and cl.course#=cd.course#
+  3  	 and e.lgrade is not null and cl.classid =e.classid group by (s.sid));
+
+AVG_TOTAL_CREDITS                                                               
+-----------------                                                               
+                7                                                               
+
+SQL> start q20.sql
+SQL> select p.sid,p.cgpa from(
+  2  	 select e.sid,sum(g.ngrade)/count(cl.classid) as cgpa from enrollments e,grades g,classes cl,course_credit cd where
+  3  	 cl.course#=cd.course# and g.lgrade is not null and e.classid=cl.classid and e.lgrade=g.lgrade and sid not in (select sid from enrollments where lgrade is null)
+  4  	 group by(e.sid)
+  5  	 union
+  6  	 select sid,null as cgpa from enrollments where lgrade is null) p order by case
+  7  	 when cgpa is null then 1 else 0 end,cgpa desc;
+
+SID        CGPA                                                                 
+---- ----------                                                                 
+B006          4                                                                 
+B007          4                                                                 
+B001 3.16666667                                                                 
+B002          3                                                                 
+B005          3                                                                 
+B004        2.5                                                                 
+B003                                                                            
+
+7 rows selected.
+
+SQL> spool off

@@ -1,0 +1,16 @@
+all:main
+
+bag.o: bag.h bag.c
+	gcc -c -g -Wall bag.c
+
+statistics.o: statistics.h statistics.c
+	gcc -c -g -Wall statistics.c -lm
+
+main.o: main.c
+	gcc -c -g -Wall main.c
+
+main: bag.o statistics.o  main.o
+	gcc -g -Wall bag.o statistics.o main.o -o main
+
+clean:
+	rm *.o main

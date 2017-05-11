@@ -1,0 +1,49 @@
+
+#include "linklist.h"
+
+int main(int argc, char* argv[])
+{
+
+	linkList *t= createlinkList();
+	data *dat = createData(5);
+	addFront(t,dat);
+
+	dat = createData(6);
+	addFront(t,dat);
+
+	dat = createData(7);
+	addFront(t,dat);
+
+	dat = createData(8);
+	addFront(t,dat);
+
+	dat = createData(9);
+	addBack(t,dat);
+
+	printList(t);
+
+	int len = listSize(t);
+	printf("\n length = %d\n",len);
+
+	data* d = popFront(t);
+	printf("\npoped =%f\n",d->val);
+	printList(t);
+
+	d = popBack(t);
+	 printf("\npoped =%f\n",d->val);
+
+	len = listSize(t);
+        printf("\n length = %d\n",len);
+
+	cleanList(t);
+	int len = listSize(t);
+        printf("\n length = %d",len);
+	//reverseList(t);
+
+	printList(t);
+
+
+
+
+  return 0;
+}

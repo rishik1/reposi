@@ -1,0 +1,109 @@
+CS542 Design Patterns
+Spring 2014
+PROJECT NO. 5 README FILE
+
+Submission Date: Thursday, May 1, 2014
+Grace Period Used This Project: 0 Days
+Grace Period Remaining: 0 Days
+Author(s): Rishikesh Khire
+e-mail(s): rkhire1@binghamton.edu
+
+
+PURPOSE:
+The purpose of this assignment is to create two visitors and apply it to two different elements.
+
+PERCENT COMPLETE:
+
+I believe that I have completed 100% of project and utilized all the patterns and concepts that are covered in the class.
+
+PARTS THAT ARE NOT COMPLETE:
+
+N/A
+
+BUGS:
+
+N/A
+
+FILES:
+
+
+
+Project includes :
+
+sortedInsertVisitors.driver.Driver.java
+
+sortedInsertVisitors.util
+FileProcessor.java  
+sortedInsertVisitors.util.MyArray.java  
+sortedInsertVisitors.util.MyDataStructure.java  
+sortedInsertVisitors.util.MyVector.java  
+sortedInsertVisitors.util.SlowInsertVisitor.java  
+sortedInsertVisitors.utilSortedInsertVisitor.java  Visitor.java
+ 
+
+How to RUN/SAMPLE OUTPUT:
+
+remote06:~/Rishikesh_Khire_Assig5/Rishikesh_Khire_Assign5> ant -Darg0=a.txt run
+Buildfile: /import/linux/home/rkhire1/Rishikesh_Khire_Assig5/Rishikesh_Khire_Assign5/build.xml
+
+jar:
+
+run:
+     [java] Sorted Insert on ARRAY
+     [java]  
+     [java]  7
+     [java]  11
+     [java]  13
+     [java]  14
+     [java]  18
+     [java]  21
+     [java]  91
+     [java] Insert then SORT on ARRAY
+     [java]  
+     [java]  7
+     [java]  11
+     [java]  13
+     [java]  14
+     [java]  18
+     [java]  21
+     [java]  91
+     [java] Sorted Insert on Vector
+     [java]  
+     [java]  7
+     [java]  11
+     [java]  13
+     [java]  14
+     [java]  18
+     [java]  21
+     [java]  91
+     [java] Inset and then sort on vector
+     [java]  
+     [java]  7
+     [java]  11
+     [java]  13
+     [java]  14
+     [java]  18
+     [java]  21
+     [java]  91
+
+BUILD SUCCESSFUL
+Total time: 1 second
+
+TO COMPILE:
+
+	1. Extract the .gz file
+	2. Execute: ant compile
+
+
+TO RUN:
+
+To run: ant -Darg0=<file name>  run
+
+EXTRA CREDIT:
+
+BIBLIOGRAPHY:
+
+* http://www.cs.binghamton.edu/~mgovinda/courses/csx42/assignments/assign1/assign1.html
+
+
+ACKNOWLEDGEMENT:

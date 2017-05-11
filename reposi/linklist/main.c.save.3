@@ -1,0 +1,43 @@
+#include "employee.h"
+#include "linklist.h"
+#define debug 1
+
+int main(int argc, char* argv[])
+{
+
+
+	int i = 0;
+
+        linkList *s;
+        if(argc > 4)
+        {
+                printf("more input tha expected\n");
+        }
+
+        if(debug ==1)
+        {
+        printf("number of arguments::::%d\n",argc);
+                for(i=0; i < argc ; i++)
+                {
+                        printf("arguments are ::%s\n",argv[i]);
+                }
+        }
+
+        s  = loadData(argv[1]);
+
+        if(debug == 1)
+        {
+                printList(s);
+        }
+
+	int count = countFirstName(s,argv[2]);
+
+	printf("%d\n",count);
+
+	removeLastName(s,argv[2]);	
+
+	printList(s);
+
+
+  return 0;
+}

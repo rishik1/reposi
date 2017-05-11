@@ -1,0 +1,16 @@
+SQL> start q1
+SP2-0310: unable to open file "q1.sql"
+SQL> start q1.sql
+SQL> select co.dept_code||co.course# as course_id,co.title from courses co,classes cl where
+  2  	co.dept_code =cl.dept_code and co.course#=cl.course# and semester ='Spring' and year='2014'
+  3  	group by (co.dept_code||co.course# ,co.title);
+
+COURSE_ID                                    TITLE                              
+-------------------------------------------- --------------------               
+CS432                                        database systems                   
+CS532                                        database systems                   
+CS240                                        data structure                     
+Math221                                      calculus I                         
+
+SQL> 
+SQL> spool off

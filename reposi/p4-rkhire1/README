@@ -1,0 +1,20 @@
+Name Rishikesh Khire
+email rkhire1@binghamton.edu
+At the server side:
+COMPILE USING :: sudo gcc -Wall -o ssl-server ssl_server.c -lssl -lcrypto
+run ::::::::::::  "./server cert.pem key.pem port"
+
+At the client side:
+compile using ::sudo gcc -Wall -o ssl-client ssl_client.c -lssl -lcrypto
+run           ::"./client hostname port"
+
+
+if you want to close client put input of X =-1 ,client will close
+
+
+
+
+
+
+
+

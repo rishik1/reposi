@@ -1,0 +1,243 @@
+#include "tree.h"
+#include<assert.h>
+
+data* createData(float val)
+{
+  data* d = (data*)malloc(sizeof(data));
+  d->val = val;
+  return d;
+}
+//allocate space for tree struct and set vars
+tree* createTree()
+{
+
+	tree *t = (tree*)malloc(sizeof(tree));
+	t->root = NULL;
+	t->q = createQueue();
+	return (t);
+}
+//malloc new leaf and set vars
+leaf* createLeaf(data *d)
+{
+	leaf *l = (leaf *)malloc(sizeof(leaf));
+	l->right = NULL;
+	l->left = NULL;
+	l->d = d;
+return(l);
+}
+
+//add a leaf to the tree.  leaf must stay complete at all times.
+void addLeaf(tree *t,data *d)
+{
+	leaf *l = NULL;
+	leaf *temp = NULL;
+		if(t->root == NULL)
+		{
+			l = createLeaf(d);
+			t->root = l;
+			queuePush(t->q,l);
+		}
+		else
+		{
+			 l = queueFront(t->q);
+			if(l != NULL)
+			{
+				if(l->left == NULL)
+				{
+					temp = createLeaf(d);
+					l->left = temp;
+					queuePush(t->q,temp);
+				}
+				else if(l->right == NULL)
+				{
+					assert(l->right == NULL);
+					temp = createLeaf(d);
+					l->right = temp;
+					queuePush(t->q,temp);
+					queuePop(t->q);
+				}
+			}
+		}
+
+}
+//get the size of the tree
+int treeSize(tree *t)
+{
+	int size = treeSize_r(t->root);
+return size;
+}
+
+int treeSize_r(leaf *l)
+{
+int size;
+	if(l ==NULL)
+		return 0;
+	else
+	{
+	size = treeSize_r(l->left) + treeSize_r(l->right) +1;
+	return size;
+	}
+
+}
+
+//print data in in order
+void inOrderPrint(tree *t)
+{
+	inOrderPrint_r(t->root);
+}
+
+void inOrderPrint_r(leaf *l)
+{
+
+	if(l != NULL)
+	{
+		inOrderPrint_r(l->left);
+		printf("\n%f",l->d->val);
+		inOrderPrint_r(l->right);
+	}
+
+}
+
+//print data in pre order
+void preOrderPrint(tree *t)
+{
+	preOrderPrint_r(t->root);
+
+}
+
+void preOrderPrint_r(leaf *l)
+{
+	if(l != NULL)
+	{
+		printf("\n%f",l->d->val);
+		preOrderPrint_r(l->left);
+		preOrderPrint_r(l->right);
+	}
+
+}
+
+//print data in post order
+void postOrderPrint(tree *t)
+{
+	postOrderPrint_r(t->root);
+}
+
+void postOrderPrint_r(leaf *l)
+{
+	if(l != NULL)
+	{
+		postOrderPrint_r(l->left);
+		postOrderPrint_r(l->right);
+		printf("\n%f",l->d->val);
+	}
+}
+
+
+void treeClean(tree *t)
+{
+	treeClean_r(t->root);
+	queueClean(t->q);
+	free(t);
+
+}
+
+void treeClean_r(leaf *l)
+{
+	if(l != NULL)
+	{
+		treeClean_r(l->left);
+		treeClean_r(l->right);
+		free(l->d);
+		free(l);
+	}
+
+}
+
+
+
+leaf *breathFirstSearch(leaf *lf)
+{
+	leaf *l = NULL;
+	queue *temp = createQueue();
+	queuePush(temp,lf);
+	
+	while((lf = queueFront(temp)) != NULL)
+	{	
+		if(lf->left != NULL)
+		{
+			queuePush(temp,lf->left);	
+		}
+		if(lf->right != NULL)
+		{
+			queuePush(temp,lf->right);
+		}	
+	}
+	
+	while((lf = queueFront(temp)) != NULL)
+	{
+
+		if(lf->left == l)
+		{
+			lf->left = l;
+			break;
+		}
+		if(lf->right == l)
+		{
+			lf->right = l;
+			break;
+		}
+	}
+		if(lf->left == l)
+		{
+			lf->left = NULL;
+		}
+		if(lf->right == l)
+		{
+			lf->right = NULL;
+		}
+
+return (l);
+
+}
+
+
+//remove root. Tree must remain complete and can only be done through accessing the tree
+leaf* removeRoot(tree *t)
+{
+
+	leaf *r = t->root;
+
+	leaf *lf = breadthFristSearch(t);
+
+	t->root = lf;
+
+
+
+return(r);
+
+}
+
+
+
+//check to see if tree is balenced.  if balanced return 1 and if not return -1.
+int balancedTree(tree *t)
+{
+	int bal = balancedTree_r(t->root);
+	return bal;
+
+}
+
+int balancedTree_r(leaf *l)
+{
+		int left = treeSize_r(l->right);
+		int right = treeSize_r(l->left);
+		if(left == right)
+		{
+			return 1;
+		}
+		else{
+		return -1;
+		}
+}
+
+

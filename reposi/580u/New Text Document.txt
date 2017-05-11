@@ -1,0 +1,251 @@
+http://cs1.bradley.edu/public/jcm/cs518LexYacc.html
+
+Symobl Table
+
+First the symbol table - this would probably be placed in a separate .h file (which we will assume is named symtab.h). For this one we choose a very simple data structure - an array of 20 elements. We search the symbol table using a sequential search. We are also assuming C++ style "typedefs" and parameters are used:
+#define NSYMS 20	/* maximum number of symbols */
+struct symtab 
+{ char *name;
+  double value;
+};
+symtab symtable[NSYMS];
+
+/* symbol table lookup - insert if not found 
+   uses a sequential search
+*/
+symtab * symlook(char *s);
+{ char *p;
+  symtab *sp;
+  /* uses the equivalence of subscripts and pointers */
+  for(sp = symtable; sp < &symtable[NSYMS]; sp++) 
+  {/* test to see if s is in table at this location*/
+	if(sp->name && !strcmp(sp->name, s))
+		return sp;
+	/* is this entry empty – we can use it for the new name */
+	if(!sp->name) 
+        { sp->name = strdup(s); /* string duplicate */
+	  return sp;
+	}
+	/* otherwise continue to next */
+  }
+  yyerror("Too many symbols");
+  exit(1);	/* cannot continue */
+} /* end of symbol table lookup */
+
+Lexical Analysis - lex/flex
+
+Next we give the lex (flex) file that could go with this to find the tokens. There are only two tokens that we need to look for - the ID's and the CONSTANTS. The remaining tokens are single characters that we just return to the parser - yacc can handle those single character tokens in the grammar rules. We are assuming that the above stuff is in a file called symtable.h We assume that a $ is used for end of data.
+%{
+#include "y.tab.h"
+#include "symtable.h"
+#include <math.h>
+%}
+
+%%
+([0-9]+|([0-9]*\.[0-9]+)([eE][-+]?[0-9]+)?) {
+		yylval.dval = atof(yytext);
+		return NUMBER;
+	}
+[ \t]	;		 /* ignore white space */
+[A-Za-z][A-Za-z0-9]*	{	/* return symbol pointer */
+		symtab *sp = symlook(yytext);
+		yylval.symp = sp;
+		return NAME;
+	}
+"$"	{ return 0; }
+\n	|
+.	return yytext[0];
+%%
+
+The parser - yacc or bison
+
+And finally the yacc (or bison) file would look as follows:
+%{
+#include "symtable.h"
+#include <string.h>
+%}
+
+%union {
+	double dval;
+      symtab *symp;
+}
+%token <symp> NAME
+%token <dval> NUMBER
+%left '-' '+'
+%left '*' '/'
+%nonassoc UMINUS
+
+%type <dval> expression
+%%
+statement_list:	statement '\n'
+	|	statement_list statement '\n'
+	;
+
+statement:	NAME '=' expression	{ $1->value = $3; }
+	|	expression		{ printf("= %g\n", $1); }
+	;
+
+expression:	expression '+' expression { $$ = $1 + $3; }
+	|	expression '-' expression { $$ = $1 - $3; }
+	|	expression '*' expression { $$ = $1 * $3; }
+	|	expression '/' expression
+				{	if($3 == 0.0)
+						yyerror("divide by zero");
+					else
+						$$ = $1 / $3;
+				}
+	|	'-' expression %prec UMINUS	{ $$ = -$2; }
+	|	'(' expression ')'	{ $$ = $2; }
+	|	NUMBER
+	|	NAME			{ $$ = $1->value; }
+	;
+%%  
+
+
+
+
+
+
+
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+http://book.huihoo.com/compiler-construction-using-flex-and-bison/Context.html
+To hold the information required by the attribute grammar we construct a symbol table. A symbol table contains the environmental information concerning the attributes of various programming language constructs. In particular, the type and scope information for each variable. The symbol table will be developed as a module to be included in the yacc/bison file.
+The symbol table for Simple consists of a linked list of identifiers, initially empty. Here is the declaration of a node, initialization of the list to empty, 
+ 
+
+struct symrec
+{
+  char *name;             /* name of symbol          */
+  struct symrec *next;    /* link field              */
+};
+typedef struct symrec symrec;
+symrec *sym_table = (symrec *)0;
+symrec *putsym ();
+symrec *getsym ();
+and two operations: putsym to put an identifier into the table, and getsym which returns a pointer to the symbol table entry corresponding to an identifier. 
+ 
+
+symrec * putsym ( char *sym_name )
+{
+  symrec *ptr;
+  ptr = (symrec *) malloc (sizeof(symrec));
+  ptr$->$name = (char *) malloc (strlen(sym_name)+1);
+  strcpy (ptr$->$name,sym_name);
+  ptr$->$next = (struct symrec *)sym_table;
+  sym_table = ptr;
+  return ptr;
+}
+symrec * getsym ( char *sym_name )
+{
+  symrec *ptr;
+  for (ptr = sym_table; ptr != (symrec *) 0;
+       ptr = (symrec *)ptr$->$next)
+    if (strcmp (ptr$->$name,sym_name) == 0)
+      return ptr;
+  return 0;
+}
+The Parser Modifications
+
+The Yacc/Bison file is modified to include the symbol table and with routines to perform the installation of an indentifier in the symbol table and to perform context checking. 
+ 
+%{
+#include $<$stdlib.h$>$       /* For malloc in symbol table */
+#include $<$string.h$>$       /* For strcmp in symbol table */
+#include $<$stdio.h$>$        /* For error messages         */
+#include "ST.h"           /* The Symbol Table Module    */
+#define YYDEBUG 1         /* For debugging              */
+install ( char *sym_name )
+{  symrec *s;
+   s = getsym (sym_name);
+   if (s == 0)
+        s = putsym (sym_name);
+   else { errors++;
+          printf( "%s is already defined\n", sym_name );
+   }
+}
+context_check( char *sym_name )
+{ if ( getsym( sym_name ) == 0 ) 
+     printf( "%s is an undeclared identifier\n", sym_name );
+}
+%}
+Parser declarations
+%%
+Grammar rules and actions
+%%
+C subroutines
+Since the scanner (the Lex file) will be returning identifiers, a semantic record (static semantics) is required to hold the value and IDENT  is associated with that semantic record. 
+ 
+
+C declarations
+%union {                  /* SEMANTIC RECORD            */
+char    *id;              /* For returning identifiers  */
+}
+%token INT SKIP IF THEN ELSE FI WHILE DO END 
+%token <id> IDENT /* Simple identifier      */
+%left '-' '+'
+%left '*' '/'
+%right '^' 
+%%
+Grammar rules and actions
+%%
+C subroutines
+The context free-grammar is modified to include calls to the install and context checking functions. $n is a variable internal to Yacc which refers to the semantic record corresponding the the n-th symbol on the right hand side of a production. 
+ 
+C and parser declarations
+%%
+...
+declarations : /* empty */
+   | INTEGER id_seq IDENTIFIER '.' { install( $3 ); }
+;
+id_seq : /* empty */
+   | id_seq IDENTIFIER ','  { install( $2 );   }
+;
+command : SKIP
+   | READ IDENTIFIER   { context_check( $2 ); }
+   | IDENT ASSGNOP exp { context_check( $2 ); }
+...
+exp : INT                
+   | IDENT             { context_check( $1 ); } 
+...
+%%
+C subroutines
+In this implementation the parse tree is implicitly annotated with the information concerning whether a variable is assigned to a value before it is referenced in an expression. The annotations to the parse tree are collected into the symbol table.
+
+The Scanner Modifications
+
+The scanner must be modified to return the literal string associated each identifier (the semantic value of the token). The semantic value is returned in the global variable yylval. yylval's type is a union made from the %union declaration in the parser file. The semantic value must be stored in the proper member of the union. Since the union declaration is:
+%union { char *id; 
+}
+The semantic value is copied from the global variable yytext (which contains the input text) to yylval.id. Since the function strdup is used (from the library string.h) the library must be included. The resulting scanner file is: 
+ 
+
+%{
+#include <string.h>     /* for strdup                       */   
+#include "Simple.tab.h" /* for token definitions and yylval */
+%}
+DIGIT    [0-9]
+ID       [a-z][a-z0-9]*
+%%
+":="     { return(ASSGNOP);   }
+{DIGIT}+ { return(NUMBER);    }
+do       { return(DO);        }
+else     { return(ELSE);      }
+end      { return(END);       }
+fi       { return(FI);        }
+if       { return(IF);        }
+in       { return(IN);        }
+integer  { return(INTEGER);   }
+let      { return(LET);       }
+read     { return(READ);      }
+skip     { return(SKIP);      }
+then     { return(THEN);      }
+while    { return(WHILE);     }
+write    { return(WRITE);     }
+{ID}     { yylval.id = (char *) strdup(yytext); 
+           return(IDENTIFIER);}
+[ \t\n]+ /* eat up whitespace */
+.        { return(yytext[0]);}
+%%
+Intermediate Representation
+
+Most compilers convert the source code to an intermedate representation during this phase. In this example, the intermediate representation is a parse tree. The parse tree is held in the stack but it could be made explicit. Other popular choices for intermediate representation include abstract parse trees, three-address code, also known as quadruples, and post fix code. In this example we have chosen to bypass the generation of an intermediate representation and go directly to code generation. The principles illustrated in the section on code generation also apply to the generation of intermediate code.
